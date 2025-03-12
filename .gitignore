@@ -1,0 +1,10 @@
+buildroot
+buildroot-external-cca
+edk2-guest
+edk2-host
+images
+kvmtool
+linux-cca
+qemu
+rmm
+trusted-firmware-a
