@@ -1,10 +1,11 @@
 buildroot
 buildroot-external-cca
-edk2-guest
-edk2-host
+edk2
 images
 kvmtool
-linux-cca
+linux
 qemu
 rmm
 trusted-firmware-a
+.gdb_history
+gtest

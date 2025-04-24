@@ -1,79 +1,103 @@
-linux-setup:
-  git clone https://gitlab.arm.com/linux-arm/linux-cca -b cca-host/v7
+#git clone https://github.com/tokyo4j/linux -b cca-host/v7
 [working-directory: 'linux']
-linux:
-  make CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 defconfig
-  scripts/config -e VIRT_DRIVERS -e ARM_CCA_GUEST -e CONFIG_HZ_100 \
-   -d CONFIG_HZ_250 -e CONFIG_MACVLAN -e CONFIG_MACVTAP
-  make CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 -j16 Image
+linux-setup $CROSS_COMPILE='aarch64-linux-gnu-' $ARCH='arm64':
+  mkdir -p build
+  make O=./build defconfig
+  scripts/config --file build/.config \
+    -e VIRT_DRIVERS \
+    -e ARM_CCA_GUEST \
+    -e CONFIG_HZ_100 \
+    -d CONFIG_HZ_250 \
+    -e CONFIG_MACVLAN \
+    -e CONFIG_MACVTAP \
+    -d CONFIG_DRM
 
-edk2-guest-setup:
-  git clone https://git.codelinaro.org/linaro/dcap/edk2 -b cca/latest edk2-guest
-  git submodule update --init --recursive
-[working-directory: 'edk2-guest']
-edk2-guest:
-  source edksetup.sh
-  make -j -C BaseTools
-  export GCC5_AARCH64_PREFIX=aarch64-linux-gnu-
-  build -b RELEASE -a AARCH64 -t GCC5 -p ArmVirtPkg/ArmVirtQemu.dsc
+[working-directory: 'linux']
+linux $CROSS_COMPILE='aarch64-linux-gnu-' $ARCH='arm64':
+  make O=./build -j16 Image
 
-edk2-host-setup:
-  git clone https://github.com/tianocore/edk2.git edk2-host
+[working-directory: 'linux']
+linux-llvm $CROSS_COMPILE='aarch64-linux-gnu-' $ARCH='arm64':
+  mkdir -p build-llvm
+  make O=./build-llvm defconfig
+  scripts/config --file build-llvm/.config \
+    -e VIRT_DRIVERS \
+    -e ARM_CCA_GUEST \
+    -e CONFIG_HZ_100 \
+    -d CONFIG_HZ_250 \
+    -e CONFIG_MACVLAN \
+    -e CONFIG_MACVTAP \
+    -d CONFIG_DRM
+  make O=./build-llvm LLVM=1 -j16 Image
+  scripts/clang-tools/gen_compile_commands.py -d build-llvm
+
+#git clone https://github.com/tianocore/edk2.git edk2
+[working-directory: 'edk2']
+edk2-setup:
   git switch --detach 2839fed5
   git submodule update --init --recursive
-[working-directory: 'edk2-host']
-edk2-host:
-  source edksetup.sh
-  make -j -C BaseTools
-  export GCC5_AARCH64_PREFIX=aarch64-linux-gnu-
-  build -b RELEASE -a AARCH64 -t GCC5 -p ArmVirtPkg/ArmVirtQemuKernel.dsc
 
-kvmtool-setup:
-  git clone https://git.codelinaro.org/linaro/dcap/kvmtool -b cca/log
+[working-directory: 'edk2']
+edk2:
+  #!/bin/bash
+  source edksetup.sh; \
+    make -j -C BaseTools; \
+    export GCC5_AARCH64_PREFIX=aarch64-linux-gnu-; \
+    build -b RELEASE -a AARCH64 -t GCC5 -p ArmVirtPkg/ArmVirtQemuKernel.dsc; \
+    build -b RELEASE -a AARCH64 -t GCC5 -p ArmVirtPkg/ArmVirtQemu.dsc
 
+#git clone https://git.codelinaro.org/linaro/dcap/kvmtool -b cca/log
+
+#git clone https://git.codelinaro.org/linaro/dcap/buildroot-external-cca.git
+#git clone https://gitlab.com/buildroot.org/buildroot.git
+[working-directory: 'buildroot']
 buildroot-setup:
-  git clone https://git.codelinaro.org/linaro/dcap/buildroot-external-cca.git
-  git clone https://gitlab.com/buildroot.org/buildroot.git
-  cd buildroot; echo "KVMTOOL_CCA_OVERRIDE_SRCDIR = ../kvmtool" > local.mk
-  cd buildroot; make BR2_EXTERNAL=../buildroot-external-cca/ cca_defconfig
+  echo "KVMTOOL_CCA_OVERRIDE_SRCDIR = ../kvmtool" > local.mk
+  make BR2_EXTERNAL=../buildroot-external-cca/ cca_defconfig
+
 [working-directory: 'buildroot']
 buildroot:
   make -j16
   cp output/images/rootfs.ext4 ../images/
   cp output/images/rootfs.cpio ../images/
 
-rmm-setup:
-  git clone https://git.codelinaro.org/linaro/dcap/rmm -b cca/v4
+#git clone https://git.codelinaro.org/linaro/dcap/rmm -b cca/v4
+[working-directory: 'rmm']
+rmm-setup $CROSS_COMPILE='aarch64-linux-gnu-':
   git submodule update --init --recursive
-  export CROSS_COMPILE=aarch64-linux-gnu-
-  cmake -B build-qemu -DCMAKE_BUILD_TYPE=Debug -DRMM_CONFIG=qemu_virt_defcfg
+  cmake -B build-qemu -DCMAKE_BUILD_TYPE=Debug -DRMM_CONFIG=qemu_virt_defcfg -DCMAKE_EXPORT_COMPILE_COMMANDS=on
+
 [working-directory: 'rmm']
 rmm:
   cmake --build build-qemu
 
-tfa-setup:
-  git clone https://git.codelinaro.org/linaro/dcap/tf-a/trusted-firmware-a -b cca/v4
+#git clone https://git.codelinaro.org/linaro/dcap/tf-a/trusted-firmware-a -b cca/v4
 [working-directory: 'trusted-firmware-a']
 tfa:
   make -j CROSS_COMPILE=aarch64-linux-gnu- PLAT=qemu ENABLE_RME=1 DEBUG=1 LOG_LEVEL=40 \
     QEMU_USE_GIC_DRIVER=QEMU_GICV3 RMM=../rmm/build-qemu/Debug/rmm.img \
-    BL33=../edk2-host/Build/ArmVirtQemuKernel-AARCH64/RELEASE_GCC5/FV/QEMU_EFI.fd all fip
+    BL33=../edk2/Build/ArmVirtQemuKernel-AARCH64/RELEASE_GCC5/FV/QEMU_EFI.fd all fip memmap
   dd if=build/qemu/debug/bl1.bin of=flash.bin
   dd if=build/qemu/debug/fip.bin of=flash.bin seek=64 bs=4096
 
+gtest:
+  aarch64-linux-gnu-gcc gtest.c -static -o gtest
+
 run-tmux:
-  tmux new-session -d socat -,rawer TCP-LISTEN:54320
+  tmux new-session -d socat -,rawer TCP-LISTEN:54320,fork
   tmux select-pane -T Firmware
-  tmux split-window -v socat -,rawer TCP-LISTEN:54321
+  tmux split-window -v socat -,rawer TCP-LISTEN:54321,fork
   tmux select-pane -T Secure
-  tmux split-pane -t 0 -h socat -,rawer TCP-LISTEN:54322
-  tmux select-pane -T Host
-  tmux split-pane -t 2 -h socat -,rawer TCP-LISTEN:54323
-  tmux select-pane -T Realm
+  tmux split-pane -t 0 -h socat -,rawer TCP-LISTEN:54322,fork
+  tmux select-pane -T 'Host'
+  tmux split-pane -t 2 -h socat -,rawer TCP-LISTEN:54323,fork
+  tmux select-pane -T 'Realm'
   tmux set allow-set-title off
   tmux set pane-border-format "#{pane_title}"
   tmux set pane-border-status top
   tmux set mouse on
+  tmux bind -n C-f copy-mode \\\; command-prompt -p "(search up)" "send -X search-backward \"%%%\""
+  tmux bind -n C-e kill-session
   tmux attach
 
 run-qemu:
@@ -83,8 +107,8 @@ run-qemu:
     -m 8G -smp 8 \
     -nographic \
     -bios trusted-firmware-a/flash.bin \
-    -kernel linux-cca/arch/arm64/boot/Image \
-    -drive format=raw,if=none,file=buildroot/output/images/rootfs.ext4,id=hd0 \
+    -kernel linux/build/arch/arm64/boot/Image \
+    -drive format=raw,if=none,file=./images/rootfs.ext4,id=hd0 \
     -device virtio-blk-pci,drive=hd0 \
     -nodefaults \
     -serial tcp:localhost:54320 \
@@ -95,10 +119,26 @@ run-qemu:
     -chardev socket,mux=on,id=hvc1,port=54323,host=localhost \
     -device virtio-serial-device \
     -device virtconsole,chardev=hvc1 \
-    -append "root=/dev/vda console=hvc0" \
+    -append "root=/dev/vda console=hvc0 console=hvc1" \
     -device virtio-net-pci,netdev=net0 -netdev user,id=net0 \
     -device virtio-9p-device,fsdev=shr0,mount_tag=shr0 \
     -fsdev local,security_model=none,path=.,id=shr0
 
+copy-files:
+  mkdir -p mnt
+  sudo mount images/rootfs.ext4 ./mnt/
+  sudo cp ./gtest ./gen-run-vmm.cfg ./mnt/root/
+  sudo umount mnt
+  rmdir mnt
+
+  mkdir -p mnt
+  -cd mnt; cpio -id < ../images/rootfs.cpio
+  cp ./gtest ./gen-run-vmm.cfg mnt
+  -cd mnt; find . | cpio -o > ../images/rootfs.cpio
+  rm -rf mnt
+
 #ln -s /mnt/gen-run-vmm.cfg .
-#gen-run-vmm.sh --kvmtool --tap --extcon
+#ln -s /mnt/gen-run-vmm.sh .
+#./gen-run-vmm.sh --kvmtool --tap --extcon
+
+#mount -t 9p -o trans=virtio,version=9p2000.L shr1 /mnt
