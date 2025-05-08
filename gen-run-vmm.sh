@@ -215,7 +215,7 @@ if ! $gen_measurements; then
         fi
     else
         # QEMU machine provides virtio-console
-        GUEST_TTY=/dev/hvc1
+        : "${GUEST_TTY:=/dev/hvc1}"
     fi
 fi
 

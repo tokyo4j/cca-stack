@@ -3,7 +3,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-#define NR_PAGES (256 * 32) // 32MB
+#define NR_PAGES (256 * 64) // 64MB
 
 int main() {
   // Allocate 32 MB memory
@@ -11,7 +11,7 @@ int main() {
                    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
   // Initialize the allocated pages with fixed values
   for (uint32_t i = 0; i < NR_PAGES; i++)
-    *(uint32_t *)&ptr[4096 * i] = i % 2;
+    *(uint32_t *)&ptr[4096 * i] = i;
   // Try merging
   for (uint32_t i = 0; i < NR_PAGES; i++)
     madvise(ptr + 4096 * i, 4096, 26);

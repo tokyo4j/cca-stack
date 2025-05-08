@@ -61,6 +61,11 @@ buildroot:
   cp output/images/rootfs.ext4 ../images/
   cp output/images/rootfs.cpio ../images/
 
+[working-directory: 'buildroot']
+buildroot-clean-target:
+  rm -rf output/target
+  find output/build -name ".stamp_target_installed" -exec rm {} \;
+
 #git clone https://git.codelinaro.org/linaro/dcap/rmm -b cca/v4
 [working-directory: 'rmm']
 rmm-setup $CROSS_COMPILE='aarch64-linux-gnu-':
@@ -89,9 +94,16 @@ run-tmux:
   tmux split-window -v socat -,rawer TCP-LISTEN:54321,fork
   tmux select-pane -T Secure
   tmux split-pane -t 0 -h socat -,rawer TCP-LISTEN:54322,fork
-  tmux select-pane -T 'Host'
-  tmux split-pane -t 2 -h socat -,rawer TCP-LISTEN:54323,fork
-  tmux select-pane -T 'Realm'
+  tmux select-pane -T 'Host 1'
+  tmux split-pane -t 1 -h socat -,rawer TCP-LISTEN:54323,fork
+  tmux select-pane -T 'Host 2'
+  tmux split-pane -t 3 -h socat -,rawer TCP-LISTEN:54324,fork
+  tmux select-pane -T 'Realm 1'
+  tmux split-pane -t 4 -h socat -,rawer TCP-LISTEN:54325,fork
+  tmux select-pane -T 'Realm 2'
+  tmux split-pane -t 3 -v socat -,rawer TCP-LISTEN:54326,fork
+  tmux pipe-pane 'cat > foo.txt'
+  tmux select-pane -T 'Host 3'
   tmux set allow-set-title off
   tmux set pane-border-format "#{pane_title}"
   tmux set pane-border-status top
@@ -100,6 +112,10 @@ run-tmux:
   tmux bind -n C-e kill-session
   tmux attach
 
+# hvc0:host1
+# hvc1:host2
+# hvc2:realm1
+# hvc3=realm2
 run-qemu:
   qemu-system-aarch64 \
     -M virt,virtualization=on,secure=on,gic-version=3 \
@@ -119,26 +135,23 @@ run-qemu:
     -chardev socket,mux=on,id=hvc1,port=54323,host=localhost \
     -device virtio-serial-device \
     -device virtconsole,chardev=hvc1 \
-    -append "root=/dev/vda console=hvc0 console=hvc1" \
+    -chardev socket,mux=on,id=hvc2,port=54324,host=localhost \
+    -device virtio-serial-device \
+    -device virtconsole,chardev=hvc2 \
+    -chardev socket,mux=on,id=hvc3,port=54325,host=localhost \
+    -device virtio-serial-device \
+    -device virtconsole,chardev=hvc3 \
+    -chardev socket,mux=on,id=hvc4,port=54326,host=localhost \
+    -device virtio-serial-device \
+    -device virtconsole,chardev=hvc4 \
+    -append "root=/dev/vda console=hvc0" \
     -device virtio-net-pci,netdev=net0 -netdev user,id=net0 \
     -device virtio-9p-device,fsdev=shr0,mount_tag=shr0 \
     -fsdev local,security_model=none,path=.,id=shr0
 
-copy-files:
-  mkdir -p mnt
-  sudo mount images/rootfs.ext4 ./mnt/
-  sudo cp ./gtest ./gen-run-vmm.cfg ./mnt/root/
-  sudo umount mnt
-  rmdir mnt
-
-  mkdir -p mnt
-  -cd mnt; cpio -id < ../images/rootfs.cpio
-  cp ./gtest ./gen-run-vmm.cfg mnt
-  -cd mnt; find . | cpio -o > ../images/rootfs.cpio
-  rm -rf mnt
-
 #ln -s /mnt/gen-run-vmm.cfg .
 #ln -s /mnt/gen-run-vmm.sh .
-#./gen-run-vmm.sh --kvmtool --tap --extcon
+# GUEST_TTY=/dev/hvc2 ./gen-run-vmm.sh --kvmtool --tap --extcon
+# GUEST_TTY=/dev/hvc3 ./gen-run-vmm.sh --kvmtool --tap --extcon
 
 #mount -t 9p -o trans=virtio,version=9p2000.L shr1 /mnt
