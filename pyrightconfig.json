@@ -1,0 +1,14 @@
+{
+  "exclude": [
+    "buildroot",
+    "buildroot-external-cca",
+    "edk2",
+    "images",
+    "kvmtool",
+    "linux",
+    "mnt",
+    "rmm",
+    "trusted-firmware-a"
+  ],
+  "reportAttributeAccessIssue": "none"
+}

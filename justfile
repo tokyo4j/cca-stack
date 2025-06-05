@@ -53,6 +53,8 @@ edk2:
 [working-directory: 'buildroot']
 buildroot-setup:
   echo "KVMTOOL_CCA_OVERRIDE_SRCDIR = ../kvmtool" > local.mk
+  echo "BR2_GNU_MIRROR = https://ftp.jaist.ac.jp/pub/GNU" >> local.mk
+  echo "HOSTCC = gcc-14" >> local.mk
   make BR2_EXTERNAL=../buildroot-external-cca/ cca_defconfig
 
 [working-directory: 'buildroot']
@@ -93,17 +95,18 @@ run-tmux:
   tmux select-pane -T Firmware
   tmux split-window -v socat -,rawer TCP-LISTEN:54321,fork
   tmux select-pane -T Secure
+  tmux break-pane -d
   tmux split-pane -t 0 -h socat -,rawer TCP-LISTEN:54322,fork
-  tmux select-pane -T 'Host 1'
+  tmux select-pane -T 'Host 0'
   tmux split-pane -t 1 -h socat -,rawer TCP-LISTEN:54323,fork
+  tmux select-pane -T 'Host 1'
+  tmux split-pane -t 0 -v socat -,rawer TCP-LISTEN:54324,fork
   tmux select-pane -T 'Host 2'
-  tmux split-pane -t 3 -h socat -,rawer TCP-LISTEN:54324,fork
+  #tmux pipe-pane 'cat > host-2.txt'
+  tmux split-pane -t 2 -v socat -,rawer TCP-LISTEN:54325,fork
+  tmux select-pane -T 'Realm 0'
+  tmux split-pane -t 4 -v socat -,rawer TCP-LISTEN:54326,fork
   tmux select-pane -T 'Realm 1'
-  tmux split-pane -t 4 -h socat -,rawer TCP-LISTEN:54325,fork
-  tmux select-pane -T 'Realm 2'
-  tmux split-pane -t 3 -v socat -,rawer TCP-LISTEN:54326,fork
-  tmux pipe-pane 'cat > foo.txt'
-  tmux select-pane -T 'Host 3'
   tmux set allow-set-title off
   tmux set pane-border-format "#{pane_title}"
   tmux set pane-border-status top
@@ -151,7 +154,7 @@ run-qemu:
 
 #ln -s /mnt/gen-run-vmm.cfg .
 #ln -s /mnt/gen-run-vmm.sh .
-# GUEST_TTY=/dev/hvc2 ./gen-run-vmm.sh --kvmtool --tap --extcon
-# GUEST_TTY=/dev/hvc3 ./gen-run-vmm.sh --kvmtool --tap --extcon
+# GUEST_TTY=/dev/hvc3 EXTRA_KPARAMS=arm_cca_guest.is_attacker=1 ./gen-run-vmm.sh --kvmtool --tap --extcon
+# GUEST_TTY=/dev/hvc4 EXTRA_KPARAMS=arm_cca_guest.is_attacker=0 ./gen-run-vmm.sh --kvmtool --tap --extcon
 
 #mount -t 9p -o trans=virtio,version=9p2000.L shr1 /mnt

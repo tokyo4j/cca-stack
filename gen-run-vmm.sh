@@ -42,6 +42,9 @@ done
 : ${OUTPUT_SCRIPT_DIR:=.}
 : ${OUTPUT_DTB_DIR:=.}
 
+OUTPUT_DTB_DIR=/tmp/$(head -c 12 /dev/urandom | base64 | head -c 16)
+mkdir -p $OUTPUT_DTB_DIR
+
 : ${RVSTORE_DIR:=}
 : ${CONFIGS_DIR:=/usr/share/cca-realm-measurements/configs}
 : ${REALM_MEASUREMENTS:=realm-measurements}
@@ -180,6 +183,8 @@ fi
 declare -a CMD
 declare -a KPARAMS
 
+KPARAMS+=($EXTRA_KPARAMS)
+
 if $use_virtconsole; then
     KPARAMS+=(console=hvc0)
 else
@@ -238,14 +243,14 @@ if [ "$vmm" = "kvmtool" ]; then
     fi
 
     CMD+=(
-        -c 2 -m 512
+        -c 1 -m 512
         -k ${RUN_KERNEL}
         --virtio-transport pci
         --irqchip=gicv3-its
         --pmu
         --network mode=user
         --9p /mnt,shr1
-        --dtb kvmtool-gen.dtb
+        --dtb ${OUTPUT_DTB}
         --debug
     )
     if $use_initrd; then
