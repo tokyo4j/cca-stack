@@ -183,7 +183,9 @@ fi
 declare -a CMD
 declare -a KPARAMS
 
-KPARAMS+=($EXTRA_KPARAMS)
+if [[ -v EXTRA_KPARAMS ]]; then
+  KPARAMS+=($EXTRA_KPARAMS)
+fi
 
 if $use_virtconsole; then
     KPARAMS+=(console=hvc0)
