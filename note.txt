@@ -3,14 +3,16 @@ ln -s /mnt/gen-run-vmm.sh .
 GUEST_TTY=/dev/hvc3 EXTRA_KPARAMS=arm_cca_guest.is_attacker=1 ./gen-run-vmm.sh --kvmtool --tap --extcon
 GUEST_TTY=/dev/hvc4 EXTRA_KPARAMS=arm_cca_guest.is_attacker=0 ./gen-run-vmm.sh --kvmtool --tap --extcon
 
+echo 1 > /sys/kernel/mm/ksm/run
+
 RECLAIM_MERGED_PAGES=1 \
   GUEST_TTY=/dev/hvc3 \
   EXTRA_KPARAMS='arm_cca_guest.is_attacker=0' \
-  ./gen-run-vmm.sh --kvmtool --tap --extcon
+  ./gen-run-vmm.sh --kvmtool --tap --extcon --no-rme
 
 GUEST_TTY=/dev/hvc4 \
   EXTRA_KPARAMS='arm_cca_guest.is_attacker=1' \
-  ./gen-run-vmm.sh --kvmtool --tap --extcon
+  ./gen-run-vmm.sh --kvmtool --tap --extcon --no-rme
 
 GUEST_TTY=/dev/hvc3 ./gen-run-vmm.sh --kvmtool --tap --extcon --no-rme
 

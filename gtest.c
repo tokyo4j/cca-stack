@@ -9,6 +9,7 @@ int main() {
   // Allocate 32 MB memory
   char *ptr = mmap(0, 4096 * NR_PAGES, PROT_READ | PROT_WRITE,
                    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+  sleep(10);
   // Initialize the allocated pages with fixed values
   for (uint32_t i = 0; i < NR_PAGES; i++)
     *(uint32_t *)&ptr[4096 * i] = i;

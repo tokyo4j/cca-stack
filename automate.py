@@ -1,12 +1,21 @@
 import pexpect
-import multiprocessing
 import time
 import os
 import datetime
+import sys
+import threading
 
 data_dir = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 os.mkdir(data_dir)
 
+PHASE_INIT = 0
+PHASE_START_APP = 1
+PHASE_LOOP = 2
+phases = {"data": {0: PHASE_INIT, 1: PHASE_INIT}, "lock": threading.Lock()}
+
+use_rme = True
+if len(sys.argv) == 2 and sys.argv[1] == "--no-rme":
+    use_rme = False
 
 def handle_firmware(port):
     child = pexpect.spawn(
@@ -29,6 +38,11 @@ def handle_secure(port):
     child.logfile = open(f"{data_dir}/output-secure.txt", "w")
     child.expect(pexpect.EOF, timeout=None)
 
+def sleep(child: pexpect.spawn, sec):
+    try:
+        child.expect(pexpect.EOF, timeout=sec)
+    except:
+        pass
 
 def handle_host(host_id, port):
     child = pexpect.spawn(
@@ -41,18 +55,37 @@ def handle_host(host_id, port):
     child.expect("buildroot login:", timeout=None)
     child.sendline("root")
     child.expect("#", timeout=None)
+
+    base_cmd = "./gen-run-vmm.sh --kvmtool --tap --extcon "
+    if not use_rme:
+        base_cmd += "--no-rme "
+
     if host_id == 0:
-        child.sendline("RECLAIM_MERGED_PAGES=1 "
-                       "GUEST_TTY=/dev/hvc3 "
-                       "EXTRA_KPARAMS='arm_cca_guest.is_attacker=0' "
-                       "./gen-run-vmm.sh --kvmtool --tap --extcon")
+        cmd = "RECLAIM_MERGED_PAGES=1 "
+        cmd += "GUEST_TTY=/dev/hvc3 "
+        cmd += "EXTRA_KPARAMS='arm_cca_guest.is_attacker=0' "
+        cmd += base_cmd
+        child.sendline(cmd)
     elif host_id == 1:
-        child.sendline("GUEST_TTY=/dev/hvc4 "
-                       "EXTRA_KPARAMS='arm_cca_guest.is_attacker=1' "
-                       "./gen-run-vmm.sh --kvmtool --tap --extcon")
+        cmd = "GUEST_TTY=/dev/hvc4 "
+        cmd += "EXTRA_KPARAMS='arm_cca_guest.is_attacker=1' "
+        cmd += base_cmd
+        child.sendline(cmd)
     elif host_id == 2:
-        time.sleep(3)
-        child.sendline("ls -l /tmp")
+        child.sendline("/mnt/mem.sh")
+        while True:
+            with phases["lock"]:
+                if phases["data"].get(0) >= PHASE_START_APP and phases["data"].get(1) >= PHASE_START_APP:
+                    break
+            sleep(child, 0.3)
+        child.sendline("Started app")
+        while True:
+            with phases["lock"]:
+                if phases["data"].get(0) >= PHASE_LOOP and phases["data"].get(1) >= PHASE_LOOP:
+                    break
+            sleep(child, 0.3)
+        sleep(child, 3)
+        child.sendline("Entered loop")
     child.expect(pexpect.EOF, timeout=None)
 
 
@@ -64,12 +97,23 @@ def handle_realm(realm_id, port):
         timeout=10,
     )
     child.logfile = open(f"{data_dir}/output-realm-{realm_id}.txt", "w")
+    child.expect("buildroot login:", timeout=None)
+    child.sendline("root")
+    child.expect("#", timeout=None)
+    child.sendline("mount -t 9p -o trans=virtio,version=9p2000.L shr1 /mnt")
+    child.expect("#", timeout=None)
+    child.sendline("/mnt/gtest")
+    with phases["lock"]:
+        phases["data"][realm_id] = PHASE_START_APP
+    child.expect("Entering infinite loop...", timeout=None)
+    with phases["lock"]:
+        phases["data"][realm_id] = PHASE_LOOP
     child.expect(pexpect.EOF, timeout=None)
 
-multiprocessing.Process(target=handle_firmware, args=(54320,)).start()
-multiprocessing.Process(target=handle_secure, args=(54321,)).start()
-multiprocessing.Process(target=handle_host, args=(0, 54322)).start()
-multiprocessing.Process(target=handle_host, args=(1, 54323)).start()
-multiprocessing.Process(target=handle_host, args=(2, 54324)).start()
-multiprocessing.Process(target=handle_realm, args=(0, 54325)).start()
-multiprocessing.Process(target=handle_realm, args=(1, 54326)).start()
+threading.Thread(target=handle_firmware, args=(54320,)).start()
+threading.Thread(target=handle_secure, args=(54321,)).start()
+threading.Thread(target=handle_host, args=(0, 54322)).start()
+threading.Thread(target=handle_host, args=(1, 54323)).start()
+threading.Thread(target=handle_host, args=(2, 54324)).start()
+threading.Thread(target=handle_realm, args=(0, 54325)).start()
+threading.Thread(target=handle_realm, args=(1, 54326)).start()
