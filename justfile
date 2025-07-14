@@ -88,6 +88,15 @@ tfa:
   dd if=build/qemu/debug/bl1.bin of=flash.bin
   dd if=build/qemu/debug/fip.bin of=flash.bin seek=64 bs=4096
 
+[working-directory: 'qemu']
+qemu-setup:
+  mkdir build
+  cd build; ../configure --target-list="aarch64-softmmu" --disable-fuse
+
+[working-directory: 'qemu']
+qemu:
+  ninja -C build
+
 gtest:
   aarch64-linux-gnu-gcc gtest.c -static -o gtest
 
@@ -121,7 +130,7 @@ run-tmux:
 # hvc2:realm1
 # hvc3=realm2
 run-qemu:
-  qemu-system-aarch64 \
+  qemu/build/qemu-system-aarch64 \
     -M virt,virtualization=on,secure=on,gic-version=3 \
     -M acpi=off -cpu max,x-rme=on,pauth-impdef=on \
     -m 8G -smp 8 \
@@ -152,10 +161,3 @@ run-qemu:
     -device virtio-net-pci,netdev=net0 -netdev user,id=net0 \
     -device virtio-9p-device,fsdev=shr0,mount_tag=shr0 \
     -fsdev local,security_model=none,path=.,id=shr0
-
-#ln -s /mnt/gen-run-vmm.cfg .
-#ln -s /mnt/gen-run-vmm.sh .
-# GUEST_TTY=/dev/hvc3 EXTRA_KPARAMS=arm_cca_guest.is_attacker=1 ./gen-run-vmm.sh --kvmtool --tap --extcon
-# GUEST_TTY=/dev/hvc4 EXTRA_KPARAMS=arm_cca_guest.is_attacker=0 ./gen-run-vmm.sh --kvmtool --tap --extcon
-
-#mount -t 9p -o trans=virtio,version=9p2000.L shr1 /mnt

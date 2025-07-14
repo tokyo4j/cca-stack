@@ -1,0 +1,29 @@
+ln -s /mnt/gen-run-vmm.cfg .
+ln -s /mnt/gen-run-vmm.sh .
+GUEST_TTY=/dev/hvc3 EXTRA_KPARAMS=arm_cca_guest.is_attacker=1 ./gen-run-vmm.sh --kvmtool --tap --extcon
+GUEST_TTY=/dev/hvc4 EXTRA_KPARAMS=arm_cca_guest.is_attacker=0 ./gen-run-vmm.sh --kvmtool --tap --extcon
+
+echo 1 > /sys/kernel/mm/ksm/run
+
+RECLAIM_MERGED_PAGES=1 \
+  GUEST_TTY=/dev/hvc3 \
+  EXTRA_KPARAMS='arm_cca_guest.is_attacker=0' \
+  ./gen-run-vmm.sh --kvmtool --tap --extcon --no-rme
+
+GUEST_TTY=/dev/hvc4 \
+  EXTRA_KPARAMS='arm_cca_guest.is_attacker=1' \
+  ./gen-run-vmm.sh --kvmtool --tap --extcon --no-rme
+
+GUEST_TTY=/dev/hvc3 ./gen-run-vmm.sh --kvmtool --tap --extcon --no-rme
+
+mount -t 9p -o trans=virtio,version=9p2000.L shr1 /mnt
+
+[  122.155617] Attacker CVM set deduplicatable page: addr=87b22000 content=pw1233
+[  122.373786] Attacker CVM set deduplicatable page: addr=87adb000 content=pw1234
+[  122.436387] VMM reclaimed deduplicated page:      addr=87adb000 content=pw1234
+[  122.596084] Attacker CVM set deduplicatable page: addr=87b1a000 content=pw1235
+
+[  123.181240] Attacker CVM set deduplicatable page: addr=87b9d000 content=pw1233
+[  123.402890] Attacker CVM set deduplicatable page: addr=87b0a000 content=pw1234
+[  123.631471] Attacker CVM set deduplicatable page: addr=87aed000 content=pw1235
+[  128.668674] VMM reclaimed deduplicated page:      addr=87b9d000 content=pw1233

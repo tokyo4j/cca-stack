@@ -183,7 +183,9 @@ fi
 declare -a CMD
 declare -a KPARAMS
 
-KPARAMS+=($EXTRA_KPARAMS)
+if [[ -v EXTRA_KPARAMS ]]; then
+  KPARAMS+=($EXTRA_KPARAMS)
+fi
 
 if $use_virtconsole; then
     KPARAMS+=(console=hvc0)
@@ -243,7 +245,7 @@ if [ "$vmm" = "kvmtool" ]; then
     fi
 
     CMD+=(
-        -c 1 -m 512
+        -c 1 -m 1536
         -k ${RUN_KERNEL}
         --virtio-transport pci
         --irqchip=gicv3-its
