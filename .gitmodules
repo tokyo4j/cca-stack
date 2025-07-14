@@ -1,0 +1,24 @@
+[submodule "qemu"]
+	path = qemu
+	url = git@github.com:tokyo4j/qemu.git
+[submodule "linux"]
+	path = linux
+	url = git@github.com:tokyo4j/linux.git
+[submodule "kvmtool"]
+	path = kvmtool
+	url = git@github.com:tokyo4j/kvmtool.git
+[submodule "edk2"]
+	path = edk2
+	url = https://github.com/tianocore/edk2.git
+[submodule "buildroot"]
+	path = buildroot
+	url = git@github.com:tokyo4j/buildroot.git
+[submodule "buildroot-external-cca"]
+	path = buildroot-external-cca
+	url = git@github.com:tokyo4j/buildroot-external-cca.git
+[submodule "rmm"]
+	path = rmm
+	url = git@github.com:tokyo4j/tf-rmm.git
+[submodule "trusted-firmware-a"]
+	path = trusted-firmware-a
+	url = git@github.com:tokyo4j/trusted-firmware-a.git

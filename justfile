@@ -41,7 +41,7 @@ edk2-setup:
 edk2:
   #!/bin/bash
   source edksetup.sh; \
-    make -j -C BaseTools; \
+    CC=gcc-14 make -j -C BaseTools; \
     export GCC5_AARCH64_PREFIX=aarch64-linux-gnu-; \
     build -b RELEASE -a AARCH64 -t GCC5 -p ArmVirtPkg/ArmVirtQemuKernel.dsc; \
     build -b RELEASE -a AARCH64 -t GCC5 -p ArmVirtPkg/ArmVirtQemu.dsc
@@ -60,6 +60,7 @@ buildroot-setup:
 [working-directory: 'buildroot']
 buildroot:
   make -j16
+  mkdir -p ../images/
   cp output/images/rootfs.ext4 ../images/
   cp output/images/rootfs.cpio ../images/
 

@@ -52,7 +52,7 @@ def handle_host(host_id, port):
                        "./gen-run-vmm.sh --kvmtool --tap --extcon")
     elif host_id == 2:
         time.sleep(3)
-        child.sendline("ls -l /tmp")
+        child.sendline("/mnt/mem.sh")
     child.expect(pexpect.EOF, timeout=None)
 
 
@@ -64,6 +64,12 @@ def handle_realm(realm_id, port):
         timeout=10,
     )
     child.logfile = open(f"{data_dir}/output-realm-{realm_id}.txt", "w")
+    child.expect("buildroot login:", timeout=None)
+    child.sendline("root")
+    child.expect("#", timeout=None)
+    child.sendline("mount -t 9p -o trans=virtio,version=9p2000.L shr1 /mnt")
+    child.expect("#", timeout=None)
+    child.sendline("/mnt/gtest")
     child.expect(pexpect.EOF, timeout=None)
 
 multiprocessing.Process(target=handle_firmware, args=(54320,)).start()
