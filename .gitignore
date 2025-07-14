@@ -1,12 +1,4 @@
-buildroot
-buildroot-external-cca
-edk2
-images
-kvmtool
-linux
-qemu
-rmm
-trusted-firmware-a
 .gdb_history
 gtest
 2025-*
+images
