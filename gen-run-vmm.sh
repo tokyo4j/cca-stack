@@ -245,7 +245,7 @@ if [ "$vmm" = "kvmtool" ]; then
     fi
 
     CMD+=(
-        -c 1 -m 1536
+        -c 1 -m 512
         -k ${RUN_KERNEL}
         --virtio-transport pci
         --irqchip=gicv3-its
