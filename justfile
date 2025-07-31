@@ -10,7 +10,8 @@ linux-setup $CROSS_COMPILE='aarch64-linux-gnu-' $ARCH='arm64':
     -d CONFIG_HZ_250 \
     -e CONFIG_MACVLAN \
     -e CONFIG_MACVTAP \
-    -d CONFIG_DRM
+    -d CONFIG_DRM \
+    -d CONFIG_TRANSPARENT_HUGEPAGE
 
 [working-directory: 'linux']
 linux $CROSS_COMPILE='aarch64-linux-gnu-' $ARCH='arm64':
@@ -157,7 +158,7 @@ run-qemu:
     -chardev socket,mux=on,id=hvc4,port=54326,host=localhost \
     -device virtio-serial-device \
     -device virtconsole,chardev=hvc4 \
-    -append "root=/dev/vda console=hvc0" \
+    -append "root=/dev/vda console=hvc0 nokaslr" \
     -device virtio-net-pci,netdev=net0 -netdev user,id=net0 \
     -device virtio-9p-device,fsdev=shr0,mount_tag=shr0 \
     -fsdev local,security_model=none,path=.,id=shr0

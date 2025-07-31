@@ -112,6 +112,8 @@ def handle_realm(realm_id, port):
     child.expect("#", timeout=None)
     child.sendline("mount -t 9p -o trans=virtio,version=9p2000.L shr1 /mnt")
     child.expect("#", timeout=None)
+    #child.sendline(f"cat /proc/kallsyms > /mnt/{data_dir}/realm-{realm_id}-kallsyms.txt")
+    #child.expect("#", timeout=None)
     child.sendline("/mnt/gtest")
     with phases as _phases:
         _phases[realm_id] = PHASE_START_APP

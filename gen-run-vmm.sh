@@ -183,6 +183,8 @@ fi
 declare -a CMD
 declare -a KPARAMS
 
+KPARAMS+=(nokaslr)
+
 if [[ -v EXTRA_KPARAMS ]]; then
   KPARAMS+=($EXTRA_KPARAMS)
 fi
@@ -245,7 +247,7 @@ if [ "$vmm" = "kvmtool" ]; then
     fi
 
     CMD+=(
-        -c 1 -m 512
+        -c 1 -m 1536
         -k ${RUN_KERNEL}
         --virtio-transport pci
         --irqchip=gicv3-its
