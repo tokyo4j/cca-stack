@@ -6,17 +6,24 @@
 #define NR_PAGES (256 * 64) // 64MB
 
 int main() {
-	// Allocate 64 MB memory
+	puts("AppStart");
+	sleep(30);
+
+	puts("AllocStart");
 	char *ptr = mmap(0, 4096 * NR_PAGES, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-	// Initialize the allocated pages with fixed values
 	for (uint32_t i = 0; i < NR_PAGES; i++)
 		*(uint32_t *)&ptr[4096 * i] = i;
-	// Try merging
+	puts("AllocEnd");
+	sleep(30);
+
+	puts("MadviseStart");
 	for (uint32_t i = 0; i < NR_PAGES; i++)
 		madvise(ptr + 4096 * i, 4096, 26);
+	puts("MadviseEnd");
+	sleep(30);
 
-	puts("Entering infinite loop...");
+	puts("LoopStart");
 
 	while (1) {
 	}

@@ -7,7 +7,7 @@ while true; do
       echo 1 > /sys/kernel/mm/ksm/run
       cat /sys/kernel/mm/ksm/run
     else
-      echo "$UPTIME $input"
+      echo "$UPTIME $input 9999"
     fi
   fi
 
@@ -17,5 +17,5 @@ while true; do
 
   UPTIME=$(cat /proc/uptime | awk '{printf "%d\n", $1 * 1000}')
 
-  echo "$UPTIME FreeMemory $MEM_USED_KB"
+  echo "$UPTIME UsedMemory $MEM_USED_KB"
 done

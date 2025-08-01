@@ -1,10 +1,15 @@
 import matplotlib.pyplot as plt
-from matplotlib.ticker import FuncFormatter
 import sys
 
-mem_samples = [[], []]
-app_samples = []
-ksm_samples = []
+d_mem = [[], []]
+d_app_start = []
+d_alloc_start = []
+d_alloc_end = []
+d_madv_start = []
+d_madv_end = []
+d_loop_start = []
+
+#ksm_samples = []
 
 if len(sys.argv) != 2:
     print("1 args must be passed")
@@ -19,26 +24,52 @@ lines = open(in_filename).readlines()
 
 for line in lines:
     cols = line.split()
-    if "FreeMemory" in line:
-        mem_samples[0].append(int(cols[0]) / 1000)
-        mem_samples[1].append(int(cols[2]) / 1024)
-    elif "Starting ksm" in line:
-        ksm_samples.append(int(cols[0]) / 1000)
-    elif "Started app" in line and cols[0].isdigit():
-        app_samples.append(int(cols[0]) / 1000)
+    if len(cols) != 3 or not cols[0].isnumeric() or not cols[2].isnumeric():
+        continue
+    sec = int(cols[0]) / 1000
+    val = int(cols[2])
+
+    if "UsedMemory" in line:
+        d_mem[0].append(sec)
+        d_mem[1].append(val / 1024)
+    # elif "Starting ksm" in line:
+    #     ksm_samples.append(int(cols[0]) / 1000)
+    elif "AppStart" in line:
+        d_app_start.append(sec)
+    elif "AllocStart" in line:
+        d_alloc_start.append(sec)
+    elif "AllocEnd" in line:
+        d_alloc_end.append(sec)
+    elif "MadviseStart" in line:
+        d_madv_start.append(sec)
+    elif "MadviseEnd" in line:
+        d_madv_end.append(sec)
+    elif "LoopStart" in line:
+        d_loop_start.append(sec)
 
 plt.rcParams["font.family"] = "Noto Sans CJK JP"
 plt.figure(figsize=(10, 6))
 plt.plot(
-    mem_samples[0],
-    mem_samples[1],
+    d_mem[0],
+    d_mem[1],
     linestyle="-",
     color="r",
 )
-for app_sample in app_samples:
-    plt.axvline(app_sample, color="b", label="アプリケーション起動")
-for ksm_sample in ksm_samples:
-    plt.axvline(ksm_sample, color="g", label="Loop started")
+for d in d_app_start:
+    plt.axvline(d, color="b", label="アプリケーション起動")
+for d in d_alloc_start:
+    plt.axvline(d, color="orange", label="メモリ確保開始")
+for d in d_alloc_end:
+    plt.axvline(d, color="lime", label="メモリ確保終了")
+for d in d_madv_start:
+    plt.axvline(d, color="slateblue", label="madvise()開始")
+for d in d_madv_end:
+    plt.axvline(d, color="lightsteelblue", label="madvise()終了")
+for d in d_loop_start:
+    plt.axvline(d, color="brown", label="ループ開始")
+
+#for ksm_sample in ksm_samples:
+#    plt.axvline(ksm_sample, color="g", label="Loop started")
 
 plt.legend()
 plt.ylabel("メモリ使用量 (MB)", fontsize=17)

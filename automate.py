@@ -18,10 +18,15 @@ class Locked:
 data_dir = "data/" + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 os.mkdir(data_dir)
 
-PHASE_INIT = 0
-PHASE_START_APP = 1
-PHASE_LOOP = 2
-phases = Locked({0: PHASE_INIT, 1: PHASE_INIT})
+phase_msgs = [
+    "AppStart",
+    "AllocStart",
+    "AllocEnd",
+    "MadviseStart",
+    "MadviseEnd",
+    "LoopStart",
+]
+phases = Locked({0: -1, 1: -1}) # -1: initial phase
 
 use_rme = True
 if len(sys.argv) == 2 and sys.argv[1] == "--no-rme":
@@ -51,8 +56,19 @@ def handle_secure(port):
 def sleep(child: pexpect.spawn, sec):
     try:
         child.expect(pexpect.EOF, timeout=sec)
-    except:
+    except:  # noqa: E722
         pass
+
+def wait_for_state(child: pexpect.spawn, state):
+    while True:
+        with phases as _phases:
+            if _phases[0] >= state and _phases[1] >= state:
+                break
+        sleep(child, 0.3)
+
+def set_state(realm_id, state):
+    with phases as _phases:
+        _phases[realm_id] = state
 
 def handle_host(host_id, port):
     child = pexpect.spawn(
@@ -83,19 +99,10 @@ def handle_host(host_id, port):
         child.sendline(cmd)
     elif host_id == 2:
         child.sendline("/mnt/mem.sh")
-        while True:
-            with phases as _phases:
-                if _phases[0] >= PHASE_START_APP and _phases[1] >= PHASE_START_APP:
-                    break
-            sleep(child, 0.3)
-        child.sendline("Started app")
-        while True:
-            with phases as _phases:
-                if _phases[0] >= PHASE_LOOP and _phases[1] >= PHASE_LOOP:
-                    break
-            sleep(child, 0.3)
-        sleep(child, 3)
-        child.sendline("Entered loop")
+        for i, msg in enumerate(phase_msgs):
+            wait_for_state(child, i)
+            child.sendline(msg)
+
     child.expect(pexpect.EOF, timeout=None)
 
 
@@ -115,11 +122,10 @@ def handle_realm(realm_id, port):
     #child.sendline(f"cat /proc/kallsyms > /mnt/{data_dir}/realm-{realm_id}-kallsyms.txt")
     #child.expect("#", timeout=None)
     child.sendline("/mnt/gtest")
-    with phases as _phases:
-        _phases[realm_id] = PHASE_START_APP
-    child.expect("Entering infinite loop...", timeout=None)
-    with phases as _phases:
-        _phases[realm_id] = PHASE_LOOP
+    for i, msg in enumerate(phase_msgs):
+        child.expect(msg, timeout=None)
+        set_state(realm_id, i)
+
     child.expect(pexpect.EOF, timeout=None)
 
 threading.Thread(target=handle_firmware, args=(54320,)).start()
