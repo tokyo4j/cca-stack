@@ -3,7 +3,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-#define NR_PAGES (256 * 64) // 64MB
+#define NR_PAGES (256 * 1024) // 1024MB
 
 int main() {
 	puts("AppStart");
@@ -18,8 +18,7 @@ int main() {
 	sleep(30);
 
 	puts("MadviseStart");
-	for (uint32_t i = 0; i < NR_PAGES; i++)
-		madvise(ptr + 4096 * i, 4096, 26);
+	madvise(ptr, 4096 * NR_PAGES, 26);
 	puts("MadviseEnd");
 	sleep(30);
 
