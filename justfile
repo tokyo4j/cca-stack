@@ -70,6 +70,14 @@ buildroot-clean-target:
   rm -rf output/target
   find output/build -name ".stamp_target_installed" -exec rm {} \;
 
+# model: https://huggingface.co/TinyLlama/TinyLlama-1.1B-Chat-v0.2-GGUF/resolve/main/ggml-model-q4_0.gguf'
+[working-directory: 'llama.cpp']
+llama-setup:
+  cmake -B build -GNinja -DLLAMA_CURL=OFF -DCMAKE_TOOLCHAIN_FILE=./toolchain-aarch64.cmake
+[working-directory: 'llama.cpp']
+llama:
+  ninja -C build
+
 #git clone https://git.codelinaro.org/linaro/dcap/rmm -b cca/v4
 [working-directory: 'rmm']
 rmm-setup $CROSS_COMPILE='aarch64-linux-gnu-':
