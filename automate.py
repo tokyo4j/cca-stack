@@ -121,7 +121,8 @@ def handle_realm(realm_id, port):
     child.expect("#", timeout=None)
     #child.sendline(f"cat /proc/kallsyms > /mnt/{data_dir}/realm-{realm_id}-kallsyms.txt")
     #child.expect("#", timeout=None)
-    child.sendline("/mnt/gtest")
+    # child.sendline("/mnt/gtest")
+    child.sendline("/mnt/llama-test/build/llama-test /mnt/llama-test/ggml-model-q4_0.gguf /mnt/llama-test/prompts.txt")
     for i, msg in enumerate(phase_msgs):
         child.expect(msg, timeout=None)
         set_state(realm_id, i)

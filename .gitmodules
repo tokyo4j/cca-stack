@@ -22,3 +22,6 @@
 [submodule "trusted-firmware-a"]
 	path = trusted-firmware-a
 	url = git@github.com:tokyo4j/trusted-firmware-a.git
+[submodule "llama.cpp"]
+	path = llama.cpp
+	url = git@github.com:tokyo4j/llama.cpp.git
