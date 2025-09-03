@@ -1,11 +1,11 @@
 while true; do
   if read -t 1 -r input; then
     UPTIME=$(cat /proc/uptime | awk '{printf "%d\n", $1 * 1000}')
-    if [[ $input == "KsmStart" ]]; then
-      cat /sys/kernel/mm/ksm/run
-      echo 1 > /sys/kernel/mm/ksm/run
-      cat /sys/kernel/mm/ksm/run
-    fi
+    #if [[ $input == "KsmStart" ]]; then
+    #  cat /sys/kernel/mm/ksm/run
+    #  echo 1 > /sys/kernel/mm/ksm/run
+    #  cat /sys/kernel/mm/ksm/run
+    #fi
     echo "$UPTIME $input 9999"
   fi
 
