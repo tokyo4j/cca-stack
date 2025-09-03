@@ -90,8 +90,8 @@ def handle_host(host_id, port):
         base_cmd += "--no-rme "
 
     if host_id == 0:
-        cmd = "RECLAIM_MERGED_PAGES=1 "
-        cmd += "GUEST_TTY=/dev/hvc3 "
+        #cmd = "RECLAIM_MERGED_PAGES=1 "
+        cmd = "GUEST_TTY=/dev/hvc3 "
         cmd += "EXTRA_KPARAMS='arm_cca_guest.is_victim=0' "
         cmd += base_cmd
         child.sendline(cmd)

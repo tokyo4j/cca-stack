@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
 		sleep(30);
 	} else {
 		puts("MadviseStart");
-		madvise(ptr, 4096 * NR_PAGES, 26);
+		// madvise(ptr, 4096 * NR_PAGES, 26);
 		puts("MadviseEnd");
 		sleep(30);
 	}
