@@ -19,6 +19,4 @@ while true; do
 
   PAGES_SHARED=$(cat /sys/kernel/mm/ksm/pages_shared)
   echo "$UPTIME PagesShared $PAGES_SHARED"
-  PAGES_UNSHARED=$(cat /sys/kernel/mm/ksm/pages_unshared)
-  echo "$UPTIME PagesUnhared $PAGES_UNSHARED"
 done

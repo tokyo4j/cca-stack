@@ -10,8 +10,6 @@ d_madv_start = []
 d_madv_end = []
 d_loop_start = []
 
-#ksm_samples = []
-
 if len(sys.argv) != 2:
     print("1 args must be passed")
     sys.exit(1)
@@ -33,8 +31,6 @@ for line in lines:
     if "UsedMemory" in line:
         d_mem[0].append(sec)
         d_mem[1].append(val / 1024)
-    # elif "Starting ksm" in line:
-    #     ksm_samples.append(int(cols[0]) / 1000)
     elif "AppStart" in line:
         d_app_start.append(sec)
     elif "AllocStart" in line:
@@ -72,9 +68,6 @@ for d in d_madv_end:
     plt.axvline(d, color="lightsteelblue", label="madvise()終了")
 for d in d_loop_start:
     plt.axvline(d, color="brown", label="ループ開始")
-
-#for ksm_sample in ksm_samples:
-#    plt.axvline(ksm_sample, color="g", label="Loop started")
 
 plt.legend()
 plt.ylabel("メモリ使用量 (MB)", fontsize=17)
