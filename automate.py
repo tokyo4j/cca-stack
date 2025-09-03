@@ -18,19 +18,22 @@ class Locked:
 data_dir = "data/" + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 os.mkdir(data_dir)
 
+no_rme = False
+if len(sys.argv) == 2 and sys.argv[1] == "--no-rme":
+    no_rme = True
+
 phase_msgs = [
     "AppStart",
     "AllocStart",
     "AllocEnd",
-    "MadviseStart",
-    "MadviseEnd",
-    "LoopStart",
 ]
-phases = Locked({0: -1, 1: -1}) # -1: initial phase
+if no_rme:
+    phase_msgs += ["KsmStart"]
+else:
+    phase_msgs += ["MadviseStart", "MadviseEnd"]
+phase_msgs += ["LoopStart"]
 
-use_rme = True
-if len(sys.argv) == 2 and sys.argv[1] == "--no-rme":
-    use_rme = False
+phases = Locked({0: -1, 1: -1}) # -1: initial phase
 
 def handle_firmware(port):
     child = pexpect.spawn(
@@ -83,7 +86,7 @@ def handle_host(host_id, port):
     child.expect("#", timeout=None)
 
     base_cmd = "./gen-run-vmm.sh --kvmtool --tap --extcon "
-    if not use_rme:
+    if no_rme:
         base_cmd += "--no-rme "
 
     if host_id == 0:
@@ -121,7 +124,10 @@ def handle_realm(realm_id, port):
     child.expect("#", timeout=None)
     #child.sendline(f"cat /proc/kallsyms > /mnt/{data_dir}/realm-{realm_id}-kallsyms.txt")
     #child.expect("#", timeout=None)
-    child.sendline("/mnt/gtest")
+    cmd = "/mnt/gtest"
+    if no_rme:
+        cmd += " --no-rme"
+    child.sendline(cmd)
     for i, msg in enumerate(phase_msgs):
         child.expect(msg, timeout=None)
         set_state(realm_id, i)

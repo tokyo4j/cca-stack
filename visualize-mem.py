@@ -5,6 +5,7 @@ d_mem = [[], []]
 d_app_start = []
 d_alloc_start = []
 d_alloc_end = []
+d_ksm_start = []
 d_madv_start = []
 d_madv_end = []
 d_loop_start = []
@@ -40,6 +41,8 @@ for line in lines:
         d_alloc_start.append(sec)
     elif "AllocEnd" in line:
         d_alloc_end.append(sec)
+    elif "KsmStart" in line:
+        d_ksm_start.append(sec)
     elif "MadviseStart" in line:
         d_madv_start.append(sec)
     elif "MadviseEnd" in line:
@@ -61,6 +64,8 @@ for d in d_alloc_start:
     plt.axvline(d, color="orange", label="メモリ確保開始")
 for d in d_alloc_end:
     plt.axvline(d, color="lime", label="メモリ確保終了")
+for d in d_ksm_start:
+    plt.axvline(d, color="slateblue", label="KSM開始")
 for d in d_madv_start:
     plt.axvline(d, color="slateblue", label="madvise()開始")
 for d in d_madv_end:

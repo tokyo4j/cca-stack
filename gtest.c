@@ -1,11 +1,12 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/mman.h>
 #include <unistd.h>
 
 #define NR_PAGES (256 * 1024) // 1024MB
 
-int main() {
+int main(int argc, char *argv[]) {
 	puts("AppStart");
 	sleep(30);
 
@@ -17,10 +18,15 @@ int main() {
 	puts("AllocEnd");
 	sleep(30);
 
-	puts("MadviseStart");
-	madvise(ptr, 4096 * NR_PAGES, 26);
-	puts("MadviseEnd");
-	sleep(30);
+	if (argc == 2 && !strcmp(argv[1], "--no-rme")) {
+		puts("KsmStart");
+		sleep(30);
+	} else {
+		puts("MadviseStart");
+		madvise(ptr, 4096 * NR_PAGES, 26);
+		puts("MadviseEnd");
+		sleep(30);
+	}
 
 	puts("LoopStart");
 

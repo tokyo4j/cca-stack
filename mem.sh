@@ -1,14 +1,12 @@
 while true; do
   if read -t 1 -r input; then
     UPTIME=$(cat /proc/uptime | awk '{printf "%d\n", $1 * 1000}')
-    if [[ $input == "ksm on" ]]; then
-      echo "$UPTIME Starting ksm"
+    if [[ $input == "KsmStart" ]]; then
       cat /sys/kernel/mm/ksm/run
       echo 1 > /sys/kernel/mm/ksm/run
       cat /sys/kernel/mm/ksm/run
-    else
-      echo "$UPTIME $input 9999"
     fi
+    echo "$UPTIME $input 9999"
   fi
 
   MEM_TOTAL_KB=$(grep MemTotal /proc/meminfo | awk '{print $2}')
@@ -18,4 +16,9 @@ while true; do
   UPTIME=$(cat /proc/uptime | awk '{printf "%d\n", $1 * 1000}')
 
   echo "$UPTIME UsedMemory $MEM_USED_KB"
+
+  PAGES_SHARED=$(cat /sys/kernel/mm/ksm/pages_shared)
+  echo "$UPTIME PagesShared $PAGES_SHARED"
+  PAGES_UNSHARED=$(cat /sys/kernel/mm/ksm/pages_unshared)
+  echo "$UPTIME PagesUnhared $PAGES_UNSHARED"
 done
