@@ -27,3 +27,8 @@ mount -t 9p -o trans=virtio,version=9p2000.L shr1 /mnt
 [  123.402890] Attacker CVM set deduplicatable page: addr=87b0a000 content=pw1234
 [  123.631471] Attacker CVM set deduplicatable page: addr=87aed000 content=pw1235
 [  128.668674] VMM reclaimed deduplicated page:      addr=87b9d000 content=pw1233
+
+1GB dedup in list: 2025-08-09_17-44-45
+1GB dedup in rbtree: 2025-11-04_14-14-59
+1GB dedup w/o busy loop: 2025-10-28_19-43-38
+1GB dedup w/  busy loop: 2025-11-04_14-14-59
