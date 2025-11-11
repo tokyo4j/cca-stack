@@ -45,3 +45,24 @@ plt.xlabel("# of pages", fontsize=17)
 plt.ylabel("time [ms]", fontsize=17)
 plt.legend()
 plt.savefig(f"{sys.argv[2]}/compare-SetPagesMergeable.png")
+
+plt.figure(figsize=(10, 6))
+plt.grid(True)
+plt.gca().yaxis.set_tick_params(labelsize=16)
+plt.scatter(
+    vmm_data0[0],
+    vmm_data0[1],
+    color="r",
+    label="w/o busy loop"
+)
+plt.scatter(
+    vmm_data1[0],
+    vmm_data1[1],
+    color="b",
+    label="w/ busy loop"
+)
+plt.title("Execution time of ReclaimMergedPages calls")
+plt.xlabel("# of pages", fontsize=17)
+plt.ylabel("time [ms]", fontsize=17)
+plt.legend()
+plt.savefig(f"{sys.argv[2]}/compare-ReclaimMergedPages.png")
