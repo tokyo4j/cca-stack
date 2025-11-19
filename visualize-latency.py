@@ -26,7 +26,7 @@ for line in open(in_filename).readlines():
     elif r_attacker := parse.search("[{ts:^f}] From attacker: ipa={ipa:x}", line):
         attacker_signals[0].append(r_attacker.named["ts"])
         attacker_signals[1].append(r_attacker.named["ipa"])
-    elif r_reclaim := parse.search("[{ts:^f}] Reclaimed pa={pa:x} ipa={ipa:x}", line):
+    elif r_reclaim := parse.search("[{ts:^f}] [{:d}] Reclaimed pa={pa:x} ipa={ipa:x}", line):
         reclaim_signals[0].append(r_reclaim.named["ts"])
         reclaim_signals[1].append(r_reclaim.named["ipa"])
 
