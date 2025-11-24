@@ -55,23 +55,22 @@ plt.plot(
     color="r",
 )
 for d in d_app_start:
-    plt.axvline(d, color="b", label="アプリケーション起動")
+    plt.axvline(d, color="b", label="Start application")
 for d in d_alloc_start:
-    plt.axvline(d, color="orange", label="メモリ確保開始")
+    plt.axvline(d, color="orange", label="Start memory allocation")
 for d in d_alloc_end:
-    plt.axvline(d, color="lime", label="メモリ確保終了")
+    plt.axvline(d, color="lime", label="End memory allocation")
 for d in d_ksm_start:
-    plt.axvline(d, color="slateblue", label="KSM開始")
+    plt.axvline(d, color="g", label="Enable KSM")
 for d in d_madv_start:
-    plt.axvline(d, color="slateblue", label="madvise()開始")
+    plt.axvline(d, color="g", label="Start SetPagesMergeable")
 for d in d_madv_end:
-    plt.axvline(d, color="lightsteelblue", label="madvise()終了")
+    plt.axvline(d, color="lightsteelblue", label="End SetPagesMergeable")
 for d in d_loop_start:
-    plt.axvline(d, color="brown", label="ループ開始")
-
+    plt.axvline(d, color="brown", label="Start infinite loop")
 plt.legend()
-plt.ylabel("メモリ使用量 (MB)", fontsize=17)
-plt.xlabel("時間 (s)", fontsize=17)
+plt.ylabel("Memory consumption (MB)", fontsize=17)
+plt.xlabel("Time (s)", fontsize=17)
 plt.grid(True)
 plt.gca().yaxis.set_tick_params(labelsize=16)
 plt.savefig(out_filename)
