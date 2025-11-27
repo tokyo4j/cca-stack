@@ -3,22 +3,20 @@ import matplotlib
 import sys
 import parse
 
+"""
+- Run no app
+- Set is_victim=0 and is_attacker=0
+- RMM@ff6ee28737aa232bb766b871370e578b02f40957
+"""
 
 fm = matplotlib.font_manager
 fm._get_fontconfig_fonts.cache_clear()
-
-if len(sys.argv) != 2:
-    print("1 args must be passed")
-    sys.exit(1)
-
-in_filename = f"{sys.argv[1]}/output-host-0.txt"
-out_filename = f"{sys.argv[1]}/mem-latency.png"
 
 d_victim = []
 d_attacker = []
 d_reclaim = []
 
-for line in open(in_filename).readlines():
+for line in open("data/2025-11-27_19-43-06/output-host-0.txt").readlines():
     if r_victim := parse.search("[{ts:^f}] From victim: ipa={ipa:x}", line):
         d_victim.append(
             {
@@ -91,7 +89,7 @@ def draw_line(plt, p1, p2, color):
     )
 
 
-for line in open(f"{sys.argv[1]}/output-firmware.txt").readlines():
+for line in open("data/2025-11-27_19-43-06/output-firmware.txt").readlines():
     if r := parse.search(
         "scan->ipa={scan_ipa:x}, dup->ipa={dup_ipa:x}, rand->pa={rand_pa:x}, rand->ipa={rand_ipa:x}",
         line,
@@ -134,4 +132,4 @@ plt.grid(True)
 plt.gca().xaxis.set_tick_params(labelsize=16)
 plt.gca().yaxis.set_tick_params(labelsize=8)
 plt.gca().yaxis.set_ticklabels([])
-plt.savefig(out_filename)
+plt.savefig("fig-micro-latency.pdf")
