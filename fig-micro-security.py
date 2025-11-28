@@ -129,7 +129,7 @@ def plot(data_dir, out_filename):
     plt.gca().yaxis.set_ticklabels([])
     plt.savefig(out_filename)
 
-plot("data/2025-11-28_20-43-05-no-rand", "fig-micro-latency-no-rand.pdf")
-plot("data/2025-11-28_20-27-48-no-spatial-rand", "fig-micro-latency-no-spatial-rand.pdf")
-plot("data/2025-11-28_20-37-42-no-temporal-rand", "fig-micro-latency-no-temporal-rand.pdf")
-plot("data/2025-11-28_20-47-33-rand", "fig-micro-latency-rand.pdf")
+plot("data/2025-11-28_20-43-05-no-rand", "fig-micro-security-no-rand.pdf")
+plot("data/2025-11-28_20-27-48-no-spatial-rand", "fig-micro-security-no-spatial-rand.pdf")
+plot("data/2025-11-28_20-37-42-no-temporal-rand", "fig-micro-security-no-temporal-rand.pdf")
+plot("data/2025-11-28_20-47-33-rand", "fig-micro-security-rand.pdf")
