@@ -56,7 +56,8 @@ plt.plot(
     label="Victim realm sets mergeable page",
     marker=".",
     linestyle="",
-    markersize=4,
+    markersize=6,
+    zorder=10,
 )
 
 plt.plot(
@@ -66,7 +67,8 @@ plt.plot(
     label="Attacker realm sets mergeable page",
     marker=".",
     linestyle="",
-    markersize=4,
+    markersize=6,
+    zorder=10,
 )
 
 plt.plot(
@@ -76,18 +78,19 @@ plt.plot(
     label="VMM reclaims page from RMM",
     marker=".",
     linestyle="",
-    markersize=4,
+    markersize=6,
+    zorder=10,
 )
 
 
-def draw_line(plt, p1, p2, color):
+def draw_line(plt, p1, p2):
     plt.plot(
         [p1[0], p2[0]],
         [p1[1], p2[1]],
-        color=color,
+        color="black",
         alpha=0.4,
         marker="",
-        linewidth=0.5,
+        zorder=5,
     )
 
 
@@ -122,9 +125,8 @@ for line in open(f"{sys.argv[1]}/output-firmware.txt").readlines():
         p2_marked_p = p2_marked["ts"], p2_marked["ipa"]
         ret_marked_p = ret_marked["ts"], ret_marked["ipa"]
         ret_reclaimed_p = ret_reclaimed["ts"], ret_reclaimed["ipa"]
-        draw_line(plt, p1_marked_p, ret_reclaimed_p, "r")
-        draw_line(plt, p2_marked_p, ret_reclaimed_p, "b")
-        # draw_line(plt, p3, p4, "g")
+        draw_line(plt, p1_marked_p, ret_reclaimed_p)
+        draw_line(plt, p2_marked_p, ret_reclaimed_p)
 
 plt.legend()
 plt.ylabel("Guest physical address", fontsize=17)
