@@ -128,6 +128,7 @@ def handle_realm(realm_id, port):
     if no_rme:
         cmd += " --no-rme"
     child.sendline(cmd)
+    #cmd = "/mnt/llama.cpp/build/bin/llama-cli -m /mnt/llama.cpp/ggml-model-q4_0.gguf -i"
     for i, msg in enumerate(phase_msgs):
         child.expect(msg, timeout=None)
         set_state(realm_id, i)
