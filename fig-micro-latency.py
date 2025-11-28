@@ -120,8 +120,8 @@ for line in open("data/2025-11-27_19-43-06/output-firmware.txt").readlines():
         p2 = dup["ts"], dup["ipa"]
         p3 = rand["ts"], rand["ipa"]
         p4 = ret["ts"], ret["ipa"]
-        draw_line(plt, p1, p4, "r")
-        draw_line(plt, p2, p4, "b")
+        draw_line(plt, p1, p4, "m")
+        draw_line(plt, p2, p4, "m")
         # draw_line(plt, p3, p4, "g")
 
 plt.legend()
