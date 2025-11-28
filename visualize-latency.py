@@ -93,37 +93,37 @@ def draw_line(plt, p1, p2, color):
 
 for line in open(f"{sys.argv[1]}/output-firmware.txt").readlines():
     if r := parse.search(
-        "scan->ipa={scan_ipa:x}, dup->ipa={dup_ipa:x}, rand->pa={rand_pa:x}, rand->ipa={rand_ipa:x}",
+        "p1->ipa={p1_ipa:x}, p2->ipa={p2_ipa:x}, ret->pa={ret_pa:x}, ret->ipa={ret_ipa:x}",
         line,
     ):
-        scan_ipa = f"0x{r.named['scan_ipa']:x}"
-        dup_ipa = f"0x{r.named['dup_ipa']:x}"
-        rand_pa = f"0x{r.named['rand_pa']:x}"
-        rand_ipa = f"0x{r.named['rand_ipa']:x}"
+        p1_ipa = f"0x{r.named['p1_ipa']:x}"
+        p2_ipa = f"0x{r.named['p2_ipa']:x}"
+        ret_pa = f"0x{r.named['ret_pa']:x}"
+        ret_ipa = f"0x{r.named['ret_ipa']:x}"
 
-        scan = [d for d in d_attacker if d["ipa"] == scan_ipa] + [
-            d for d in d_victim if d["ipa"] == scan_ipa
+        p1_marked = [d for d in d_attacker if d["ipa"] == p1_ipa] + [
+            d for d in d_victim if d["ipa"] == p1_ipa
         ]
-        dup = [d for d in d_attacker if d["ipa"] == dup_ipa] + [
-            d for d in d_victim if d["ipa"] == dup_ipa
+        p2_marked = [d for d in d_attacker if d["ipa"] == p2_ipa] + [
+            d for d in d_victim if d["ipa"] == p2_ipa
         ]
-        rand = [d for d in d_attacker if d["ipa"] == rand_ipa] + [
-            d for d in d_victim if d["ipa"] == rand_ipa
+        ret_marked = [d for d in d_attacker if d["ipa"] == ret_ipa] + [
+            d for d in d_victim if d["ipa"] == ret_ipa
         ]
-        assert len(scan) == 1
-        assert len(dup) == 1
-        assert len(rand) == 1
-        scan = scan[0]
-        dup = dup[0]
-        rand = rand[0]
-        ret = [d for d in d_reclaim if d["pa"] == rand_pa][0]
+        assert len(p1_marked) == 1
+        assert len(p2_marked) == 1
+        assert len(ret_marked) == 1
+        p1_marked = p1_marked[0]
+        p2_marked = p2_marked[0]
+        ret_marked = ret_marked[0]
+        ret_reclaimed = [d for d in d_reclaim if d["pa"] == ret_pa][0]
 
-        p1 = scan["ts"], scan["ipa"]
-        p2 = dup["ts"], dup["ipa"]
-        p3 = rand["ts"], rand["ipa"]
-        p4 = ret["ts"], ret["ipa"]
-        draw_line(plt, p1, p4, "r")
-        draw_line(plt, p2, p4, "b")
+        p1_marked_p = p1_marked["ts"], p1_marked["ipa"]
+        p2_marked_p = p2_marked["ts"], p2_marked["ipa"]
+        ret_marked_p = ret_marked["ts"], ret_marked["ipa"]
+        ret_reclaimed_p = ret_reclaimed["ts"], ret_reclaimed["ipa"]
+        draw_line(plt, p1_marked_p, ret_reclaimed_p, "r")
+        draw_line(plt, p2_marked_p, ret_reclaimed_p, "b")
         # draw_line(plt, p3, p4, "g")
 
 plt.legend()
