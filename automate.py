@@ -135,6 +135,17 @@ def handle_realm(realm_id, port):
 
     child.expect(pexpect.EOF, timeout=None)
 
+def run_qemu():
+    time.sleep(2)
+    child = pexpect.spawn(
+        "just run-qemu",
+        encoding="utf-8",
+        codec_errors="ignore",
+        timeout=10,
+    )
+    child.logfile = open(f"{data_dir}/output-qemu.txt", "w")
+    child.expect(pexpect.EOF, timeout=None)
+
 threading.Thread(target=handle_firmware, args=(54320,)).start()
 threading.Thread(target=handle_secure, args=(54321,)).start()
 threading.Thread(target=handle_host, args=(0, 54322)).start()
@@ -142,3 +153,4 @@ threading.Thread(target=handle_host, args=(1, 54323)).start()
 threading.Thread(target=handle_host, args=(2, 54324)).start()
 threading.Thread(target=handle_realm, args=(0, 54325)).start()
 threading.Thread(target=handle_realm, args=(1, 54326)).start()
+threading.Thread(target=run_qemu).start()
