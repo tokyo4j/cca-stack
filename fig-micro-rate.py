@@ -80,8 +80,8 @@ with_rand = (
 )
 
 plt.figure(figsize=(10, 10))
-plt.xlabel("Duplicates / pages")
-plt.ylabel("Returned duplicates / retuned pages")
+plt.xlabel("Duplicated pages / All mergeable pages")
+plt.ylabel("Returned duplicated pages / All returned pages")
 plt.xlim(0, 1.0)
 plt.ylim(0, 1.1)
 
@@ -102,4 +102,4 @@ plt.plot(
 )
 plt.legend(loc="upper left")
 
-plt.savefig("fig-micro-rate.pdf")
+plt.savefig("fig-micro-rate.png")
