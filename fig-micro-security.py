@@ -1,3 +1,65 @@
+"""
+linux d1cd9fbfe37c
+
+diff --git a/runtime/core/merge.c b/runtime/core/merge.c
+index 082259c..6b31ed2 100644
+--- a/runtime/core/merge.c
++++ b/runtime/core/merge.c
+@@ -288,8 +288,8 @@ reclaim_page(struct ctx *ctx)
+ 		// NOTICE("rand_item not found\n");
+ 		return 0;
+ 	}
+-	// NOTICE("p1->ipa=%lx, p2->ipa=%lx, ret->pa=%lx, ret->ipa=%lx\n",
+-	// 	scan_item->refs->ipa, dup_item->refs->ipa, rand_item->pa, rand_item->refs->ipa);
++	NOTICE("p1->ipa=%lx, p2->ipa=%lx, ret->pa=%lx, ret->ipa=%lx\n",
++		scan_item->refs->ipa, dup_item->refs->ipa, rand_item->pa, rand_item->refs->ipa);
+ 	// NOTICE("rand_item=%8lx(%lx)\n", (uint64_t)&rand_item->rb, rand_item->rb.hash);
+ 
+ 	rb_erase(&ctx->mergeable_pages, &dup_item->rb);
+
+
+
+diff --git a/automate.py b/automate.py
+index bf2f287..ba7776a 100644
+--- a/automate.py
++++ b/automate.py
+@@ -92,12 +92,12 @@ def handle_host(host_id, port):
+     if host_id == 0:
+         cmd = "RECLAIM_MERGED_PAGES=1 "
+         cmd += "GUEST_TTY=/dev/hvc3 "
+-        cmd += "EXTRA_KPARAMS='arm_cca_guest.is_victim=0' "
++        cmd += "EXTRA_KPARAMS='arm_cca_guest.is_victim=1' "
+         cmd += base_cmd
+         child.sendline(cmd)
+     elif host_id == 1:
+         cmd = "GUEST_TTY=/dev/hvc4 "
+-        cmd += "EXTRA_KPARAMS='arm_cca_guest.is_attacker=0' "
++        cmd += "EXTRA_KPARAMS='arm_cca_guest.is_attacker=1' "
+         cmd += base_cmd
+         child.sendline(cmd)
+     elif host_id == 2:
+@@ -121,13 +121,13 @@ def handle_realm(realm_id, port):
+     child.sendline("root")
+     child.expect("#", timeout=None)
+     child.sendline("mount -t 9p -o trans=virtio,version=9p2000.L shr1 /mnt")
+-    child.expect("#", timeout=None)
++    # child.expect("#", timeout=None)
+     #child.sendline(f"cat /proc/kallsyms > /mnt/{data_dir}/realm-{realm_id}-kallsyms.txt")
+     #child.expect("#", timeout=None)
+-    cmd = "/mnt/gtest"
+-    if no_rme:
+-        cmd += " --no-rme"
+-    child.sendline(cmd)
++    # cmd = "/mnt/gtest"
++    # if no_rme:
++    #     cmd += " --no-rme"
++    # child.sendline(cmd)
+     #cmd = "/mnt/llama.cpp/build/bin/llama-cli -m /mnt/llama.cpp/ggml-model-q4_0.gguf -i"
+     for i, msg in enumerate(phase_msgs):
+         child.expect(msg, timeout=None)
+
+"""
+
 import matplotlib.pyplot as plt
 import matplotlib
 import sys
@@ -21,7 +83,7 @@ def draw_line(plt, p1, p2):
 
 def plot(data_dir, out_filename):
     plt.figure(figsize=(10, 6))
-    plt.xlim(100, 210)
+    plt.xlim(100, 180)
     d_victim = []
     d_attacker = []
     d_reclaim = []
@@ -129,7 +191,7 @@ def plot(data_dir, out_filename):
     plt.gca().yaxis.set_ticklabels([])
     plt.savefig(out_filename)
 
-plot("data/2025-11-28_20-43-05-no-rand", "fig-micro-security-no-rand.pdf")
-plot("data/2025-11-28_20-27-48-no-spatial-rand", "fig-micro-security-no-spatial-rand.pdf")
-plot("data/2025-11-28_20-37-42-no-temporal-rand", "fig-micro-security-no-temporal-rand.pdf")
-plot("data/2025-11-28_20-47-33-rand", "fig-micro-security-rand.pdf")
+plot("data/2025-12-25_21-09-17", "fig-micro-security-no-rand.pdf")
+plot("data/2025-12-25_21-04-33", "fig-micro-security-no-spatial-rand.pdf")
+plot("data/2025-12-25_21-00-49", "fig-micro-security-no-temporal-rand.pdf")
+plot("data/2025-12-25_20-49-05", "fig-micro-security-rand.pdf")
