@@ -1,6 +1,4 @@
 """
-linux d1cd9fbfe37c
-
 diff --git a/runtime/core/merge.c b/runtime/core/merge.c
 index 082259c..6b31ed2 100644
 --- a/runtime/core/merge.c
@@ -83,7 +81,7 @@ def draw_line(plt, p1, p2):
 
 def plot(data_dir, out_filename):
     plt.figure(figsize=(10, 6))
-    plt.xlim(100, 180)
+    plt.xlim(100, 220)
     d_victim = []
     d_attacker = []
     d_reclaim = []
@@ -192,6 +190,6 @@ def plot(data_dir, out_filename):
     plt.savefig(out_filename)
 
 plot("data/2025-12-25_21-09-17", "fig-micro-security-no-rand.pdf")
-plot("data/2025-12-25_21-04-33", "fig-micro-security-no-spatial-rand.pdf")
-plot("data/2025-12-25_21-00-49", "fig-micro-security-no-temporal-rand.pdf")
-plot("data/2025-12-25_20-49-05", "fig-micro-security-rand.pdf")
+#plot("data/2025-12-25_21-04-33", "fig-micro-security-no-spatial-rand.pdf")
+#plot("data/2025-12-25_21-00-49", "fig-micro-security-no-temporal-rand.pdf")
+plot("data/2025-12-26_17-36-46", "fig-micro-security-rand.pdf")
