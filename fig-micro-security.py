@@ -189,7 +189,7 @@ def plot(data_dir, out_filename):
     plt.gca().yaxis.set_ticklabels([])
     plt.savefig(out_filename)
 
-plot("data/2025-12-25_21-09-17", "fig-micro-security-no-rand.pdf")
-#plot("data/2025-12-25_21-04-33", "fig-micro-security-no-spatial-rand.pdf")
-#plot("data/2025-12-25_21-00-49", "fig-micro-security-no-temporal-rand.pdf")
-plot("data/2025-12-26_17-36-46", "fig-micro-security-rand.pdf")
+plot("data/2026-01-24_04-58-08", "fig-micro-security-no-rand.pdf")
+plot("data/2026-01-24_04-18-55", "fig-micro-security-no-spatial-rand.pdf")
+plot("data/2026-01-24_04-34-08", "fig-micro-security-no-temporal-rand.pdf")
+plot("data/2026-01-24_04-07-18", "fig-micro-security-rand.pdf")
